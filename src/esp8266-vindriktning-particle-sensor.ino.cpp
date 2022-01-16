@@ -1,3 +1,6 @@
+# 1 "C:\\Users\\CHRIST~1\\AppData\\Local\\Temp\\tmpjeszweb3"
+#include <Arduino.h>
+# 1 "D:/DEV/LAB/esp8266-vindriktning-particle-sensor/src/esp8266-vindriktning-particle-sensor.ino"
 #include <ArduinoJson.h>
 #include <ArduinoOTA.h>
 #include <DNSServer.h>
@@ -28,10 +31,10 @@ WiFiManagerParameter custom_mqtt_user("user", "MQTT username", Config::username,
 WiFiManagerParameter custom_mqtt_pass("pass", "MQTT password", Config::password, sizeof(Config::password));
 
 uint32_t lastMqttConnectionAttempt = 0;
-const uint16_t mqttConnectionInterval = 60000; // 1 minute = 60 seconds = 60000 milliseconds
+const uint16_t mqttConnectionInterval = 60000;
 
 uint32_t statusPublishPreviousMillis = 0;
-const uint16_t statusPublishInterval = 30000; // 30 seconds = 30000 milliseconds
+const uint16_t statusPublishInterval = 30000;
 
 char identifier[24];
 #define FIRMWARE_PREFIX "esp8266-vindriktning-particle-sensor"
@@ -48,7 +51,18 @@ char MQTT_TOPIC_AUTOCONF_PRESSURE_SENSOR[128];
 char MQTT_TOPIC_AUTOCONF_TEMPERATURE_SENSOR[128];
 
 bool shouldSaveConfig = false;
-
+void saveConfigCallback();
+void setup();
+void setupOTA();
+void loop();
+void setupWifi();
+void resetWifiSettingsAndReboot();
+void mqttReconnect();
+bool isMqttConnected();
+void publishState();
+void mqttCallback(char* topic, uint8_t* payload, unsigned int length);
+void publishAutoConfig();
+#line 52 "D:/DEV/LAB/esp8266-vindriktning-particle-sensor/src/esp8266-vindriktning-particle-sensor.ino"
 void saveConfigCallback() {
     shouldSaveConfig = true;
 }
@@ -133,7 +147,7 @@ void setupOTA() {
 
     ArduinoOTA.setHostname(identifier);
 
-    // This is less of a security measure and more a accidential flash prevention
+
     ArduinoOTA.setPassword(identifier);
     ArduinoOTA.begin();
 }
@@ -179,9 +193,9 @@ void setupWifi() {
     if (shouldSaveConfig) {
         Config::save();
     } else {
-        // For some reason, the read values get overwritten in this function
-        // To combat this, we just reload the config
-        // This is most likely a logic error which could be fixed otherwise
+
+
+
         Config::load();
     }
 }
@@ -198,7 +212,7 @@ void mqttReconnect() {
             mqttClient.publish(MQTT_TOPIC_AVAILABILITY, AVAILABILITY_ONLINE, true);
             publishAutoConfig();
 
-            // Make sure to subscribe after polling the status so that we never execute commands with the default data
+
             mqttClient.subscribe(MQTT_TOPIC_COMMAND);
             break;
         }
